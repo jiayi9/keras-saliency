@@ -1,2 +1,2 @@
 # keras-saliency
-The code for check how a Keras CNN model works for all classes
+The code to check how and how well Keras CNN models work with saliency visualization

@@ -83,7 +83,7 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
         im = Image.fromarray(np.uint8(TMP*255))
         draw = ImageDraw.Draw(im)
         for i in range(CLASS_NUM):
-            draw.text((0 + 5, i*30 + 5),  str(i), fill = (255, 0, 255))
+            draw.text((0 + 5, i*wdith + 5),  str(i), fill = (255, 0, 255))
         uuid_str = uuid.uuid4().hex
         im.save(output_folder+uuid_str+'.jpg')
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# For Windows only because of font issue. Modify if you need it in any Linux systems.
+
 import glob
 from PIL import Image, ImageDraw,ImageFont
 import numpy as np
@@ -11,6 +13,7 @@ from keras import activations
 from keras.models import load_model
 import matplotlib.cm as cm
 import uuid
+import cv2
 
 # label and save a single image for all class
 def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_idx, width = 96, COLOR_MODE = "RGB", text_color = (255,255,255)):
@@ -31,7 +34,9 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
         L = []
         
         print(model.predict_classes(img))
-
+        prob = model.predict_proba(img).round(3)
+        print(prob)
+        
         if MAX_PIXEL == 0:
             MAX_PIXEL = 0.00001
 
@@ -51,12 +56,8 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
                 TMP = IM
             else:
                 TMP = np.concatenate((TMP, IM), axis = 0)
-        im = Image.fromarray(np.uint8(TMP*255))
-        draw = ImageDraw.Draw(im)
-        for i in range(CLASS_NUM):
-            draw.text((0 + 5, i*width + 5),  str(i), fill = text_color)
-        uuid_str = uuid.uuid4().hex
-        im.save(output_folder+uuid_str+'.jpg')
+
+
         
     elif COLOR_MODE == "L":
         img = np.array(Image.open(file_path))/255
@@ -65,7 +66,9 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
         img_rgb_bg = np.array(Image.open(file_path).convert("RGB"))/255     
         
         print(model.predict_classes(img))
-        
+        prob = model.predict_proba(img).round(3)
+        print(prob)
+
         GRADS = []
         MAX = np.array([])        
         for index in range(CLASS_NUM):
@@ -96,26 +99,28 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
                 TMP = IM
             else:
                 TMP = np.concatenate((TMP, IM), axis = 0)
-        im = Image.fromarray(np.uint8(TMP*255))
-        draw = ImageDraw.Draw(im)
-        
-        
-        for i in range(CLASS_NUM):
-            # draw.text((0 + 5, i*width + 5),  str(i), fill = (255, 0, 255))
 
-            draw.text((0 + 5, i*width + 5),  str(i), fill = (255, 0, 255), font=Font1)
-        uuid_str = uuid.uuid4().hex
-        im.save(output_folder+uuid_str+'.jpg')
+    for i in range(CLASS_NUM):
+        TMP = cv2.line(TMP, (i*width,0), (i*width ,width*3),  color = (1, 1, 1), thickness = 1)
+        TMP = cv2.line(TMP, (0, i*width), (width*3, i*width),  color = (1, 1, 1), thickness = 1)
+
+    im = Image.fromarray(np.uint8(TMP*255))
+    draw = ImageDraw.Draw(im)
+    for i in range(CLASS_NUM):
+        draw.text((0 + 5, i*width + 5),  str(i), fill = text_color, font=Font1)
+        draw.text((0 + 5 + width, i*width + 5), str(prob[0][i]), fill = text_color, font=Font1)
+    
+    uuid_str = uuid.uuid4().hex
+    im.save(output_folder+uuid_str+'.jpg')
 
 
 #---------------------------    test code    ----------------------------------
 
 # load model
-#MODEL_PATH = "/Users/tef-itm/Downloads/96_5cm.h5"
-#MODEL_PATH = "//bosch.com/dfsrb/DfsCN/LOC/Wx/Project/RBCD_Data_mining/Data_Analytics_Community/exchange/lv/models/96_5cm.h5"
-#MODEL_PATH = "//bosch.com/dfsrb/DfsCN/LOC/Wx/Project/RBCD_Data_mining/Data_Analytics_Community/exchange/lv_moe9/saliency_checks/model_1/ValvePiece_ResNet56v2_model.022.h5"
+#MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model.h5"
 
-MODEL_PATH = "C:/LV_CHAO_IMAGE/validate_lv/model.h5"
+MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model_5Con.h5"
+
 
 model = load_model(MODEL_PATH)
 #
@@ -137,43 +142,43 @@ for index, layer in enumerate(model.layers):
     NAMES.append(layer.name)
     print(index, layer.name)
 print('\n\n')
-#
 
-#SOURCE_FOLDER = "/Users/tef-itm/Documents/suphina/sample/"
-#OUTPUT_FOLDER = "/Users/tef-itm/Documents/suphina/output/"
-#SOURCE_FOLDER = "N:/RBCD_Data_mining/Data_Analytics_Community/exchange/lv/compressed_96_96_flip_2/Backflow_line/"
-#OUTPUT_FOLDER = "N:/RBCD_Data_mining/Data_Analytics_Community/exchange/lv_moe9/saliency_checks/model_1/output/Good_2/"
-SOURCE_FOLDER = "N:/RBCD_Data_mining/Data_Analytics_Community/exchange/lv_moe9/saliency_checks/model_1/sample_2/"
-OUTPUT_FOLDER = "N:/RBCD_Data_mining/Data_Analytics_Community/exchange/lv_moe9/saliency_checks/model_1/output/Scratch_2/"
 
-SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/validate_lv/source/"
-OUTPUT_FOLDER = "C:/LV_CHAO_IMAGE/validate_lv/output/"
+#  line
+SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/line_256/"
+OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/line/"
 
 FILE_FORMAT = '*.jpg'
 files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
 
-for index, file in enumerate(files):
+for index, file in enumerate(files[0:50]):
     print(index, file)
     label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")
 
 
-#---------------------------   more test code    ----------------------------------
 
-#
-#file_path = files[0]
-#img = np.array(Image.open(file_path))/255
-#
-#plt.imshow(img)
-#plt.imshow(img, cmap = "binary")
-#plt.imshow(img, cmap = "gray")
-#
-#
-#img = np.array(Image.open(file_path))/255
-#img = np.expand_dims(img,2)
-#img = np.expand_dims(img,0) 
-#
-#import time
-#start = time.time()     
-#print(model.predict_classes(img))
-#end = time.time()
-#print("Execution time: ",end - start)
+
+#  circle 
+SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/circle_256/"
+OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/circle/"
+
+FILE_FORMAT = '*.jpg'
+files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
+
+for index, file in enumerate(files[0:50]):
+    print(index, file)
+    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L", text_color = (255,255,255))
+
+
+
+
+# none
+SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/pass_256/"
+OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/none/"
+
+FILE_FORMAT = '*.jpg'
+files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
+
+for index, file in enumerate(files[0:50]):
+    print(index, file)
+    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")

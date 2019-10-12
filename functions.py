@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Make sure install keras-vis from github by
+# pip install git+https://github.com/raghakot/keras-vis
+
 # For Windows only because of font issue. Modify if you need it in any Linux systems.
 # There are three functions in this script
 # 1. visualize_saliency_gray_linear:   For one image, create three images [raw, saliency, overlay] with linear activation for last layer

@@ -171,8 +171,9 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
             else:
                 TMP = np.concatenate((TMP, IM), axis = 0)
 
-    for i in range(CLASS_NUM):
+    for i in range(3):
         TMP = cv2.line(TMP, (i*width,0), (i*width ,width*3),  color = (1, 1, 1), thickness = 1)
+    for i in range(CLASS_NUM):
         TMP = cv2.line(TMP, (0, i*width), (width*3, i*width),  color = (1, 1, 1), thickness = 1)
 
     im = Image.fromarray(np.uint8(TMP*255))

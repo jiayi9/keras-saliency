@@ -18,16 +18,10 @@ import cv2
 # gray linear
 
 def visualize_saliency_gray_linear(model, file_folder, output_folder):
-    
-    model.layers[layer_idx].activation = activations.linear
-    model = utils.apply_modifications(model)
-    
-    Font1 = ImageFont.truetype("C:\Windows\Fonts\simsunb.ttf",36)
-    
-    text_color = (255,255,255)
-    
     layer_idx = utils.find_layer_idx(model, model.layers[-1].name)
     CLASS_NUM = model.layers[-1].output_shape[1]
+    model.layers[layer_idx].activation = activations.linear
+    model = utils.apply_modifications(model)
     
     width = model.layers[0].input.get_shape()[1].value
     height= model.layers[0].input.get_shape()[2].value
@@ -82,6 +76,7 @@ def visualize_saliency_gray_linear(model, file_folder, output_folder):
 
     uuid_str = uuid.uuid4().hex
     im.save(output_folder+uuid_str+'.jpg')
+
 
 
 

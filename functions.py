@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # For Windows only because of font issue. Modify if you need it in any Linux systems.
+# There are three functions in this script
+# 1. visualize_saliency_gray_linear:   For one image, create three images [raw, saliency, overlay] with linear activation for last layer
+# 2. visualize_saliency_gray:          For one image, create three*classes iamges [raw, saliency, overlay]*classes with softmax activation for last layer for CONTRAST!create three*classes iamges [raw, saliency, overlay]*classes with softmax activation for last layer for CONTRAST!
+# 3. label_and_save_contrast:          For RGB or gray images with softmax activation for last layer 
 
 import glob
 from PIL import Image, ImageDraw,ImageFont
@@ -250,72 +254,76 @@ def label_and_save_contrast(model, file_path, output_folder, CLASS_NUM, layer_id
     uuid_str = uuid.uuid4().hex
     im.save(output_folder+uuid_str+'.jpg')
 
+    
+    
+ 
 
-#---------------------------    test code    ----------------------------------
-
-# load model
-#MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model.h5"
-
-MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model_5Con.h5"
-
-
-model = load_model(MODEL_PATH)
+##---------------------------    test code    ----------------------------------
 #
-# swap softmax
+## load model
+##MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model.h5"
 #
-layer_idx = utils.find_layer_idx(model, model.layers[-1].name)
-CLASS_NUM = model.layers[-1].output_shape[1]
-
-
-#model_2 = model
-#SWAP_SOFTMAX_TO_LINEAR = False
-#if SWAP_SOFTMAX_TO_LINEAR:
-#    model_2.layers[layer_idx].activation = activations.linear
-#    model_2 = utils.apply_modifications(model_2)
+#MODEL_PATH = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/model_5Con.h5"
 #
-## check layers in the model
-NAMES = []
-for index, layer in enumerate(model.layers):
-    NAMES.append(layer.name)
-    print(index, layer.name)
-print('\n\n')
+#
+#model = load_model(MODEL_PATH)
+##
+## swap softmax
+##
+#layer_idx = utils.find_layer_idx(model, model.layers[-1].name)
+#CLASS_NUM = model.layers[-1].output_shape[1]
+#
+#
+##model_2 = model
+##SWAP_SOFTMAX_TO_LINEAR = False
+##if SWAP_SOFTMAX_TO_LINEAR:
+##    model_2.layers[layer_idx].activation = activations.linear
+##    model_2 = utils.apply_modifications(model_2)
+##
+### check layers in the model
+#NAMES = []
+#for index, layer in enumerate(model.layers):
+#    NAMES.append(layer.name)
+#    print(index, layer.name)
+#print('\n\n')
+#
+#
+##  line
+#SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/line_256/"
+#OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/line/"
+#
+#FILE_FORMAT = '*.jpg'
+#files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
+#
+#for index, file in enumerate(files[0:50]):
+#    print(index, file)
+#    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")
+#
+#
+#
+#
+##  circle 
+#SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/circle_256/"
+#OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/circle/"
+#
+#FILE_FORMAT = '*.jpg'
+#files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
+#
+#for index, file in enumerate(files[0:50]):
+#    print(index, file)
+#    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L", text_color = (255,255,255))
+#
+#
+#
+#
+## none
+#SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/pass_256/"
+#OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/none/"
+#
+#FILE_FORMAT = '*.jpg'
+#files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
+#
+#for index, file in enumerate(files[0:50]):
+#    print(index, file)
+#    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")
 
-
-#  line
-SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/line_256/"
-OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/line/"
-
-FILE_FORMAT = '*.jpg'
-files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
-
-for index, file in enumerate(files[0:50]):
-    print(index, file)
-    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")
-
-
-
-
-#  circle 
-SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/circle_256/"
-OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/circle/"
-
-FILE_FORMAT = '*.jpg'
-files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
-
-for index, file in enumerate(files[0:50]):
-    print(index, file)
-    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L", text_color = (255,255,255))
-
-
-
-
-# none
-SOURCE_FOLDER = "C:/LV_CHAO_IMAGE/simulation_data/pass_256/"
-OUTPUT_FOLDER = "//bosch.com/dfsrb/DfsCN/loc/Wx/Dept/TEF/60_MFE_Manufacturing_Engineering/06_Data_Analytics/01_Project/MOE/MOE9/simulation/output/none/"
-
-FILE_FORMAT = '*.jpg'
-files = glob.glob(SOURCE_FOLDER + FILE_FORMAT)
-
-for index, file in enumerate(files[0:50]):
-    print(index, file)
-    label_and_save_contrast(model, file, OUTPUT_FOLDER, CLASS_NUM, layer_idx, width = 256, COLOR_MODE = "L")
